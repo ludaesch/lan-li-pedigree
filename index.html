@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Lan Li: Academic Pedigree</title>
   <style>
     html, body { margin: 0; height: 100%; background: #f2f2f2;
@@ -43,6 +43,38 @@
           maxZoom: 25,
           dblClickZoomEnabled: true,
         });
+
+        // ---- Mobile tap-through for <a xlink:href> nodes -----------------
+        // svg-pan-zoom calls preventDefault on touchstart for pan tracking,
+        // which kills the browser's tap-to-click translation. Detect a
+        // brief, near-stationary touch and follow the nearest ancestor <a>
+        // ourselves. Threshold: under 10 px movement and under 350 ms.
+        let t0 = null;
+        const findAnchor = (el) => {
+          while (el && el !== host) {
+            // SVGAElement has nodeName "a"; in HTML it's "A".
+            if (el.nodeName === 'a' || el.nodeName === 'A') return el;
+            el = el.parentNode;
+          }
+          return null;
+        };
+        host.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) { t0 = null; return; }
+          const t = e.touches[0];
+          t0 = { x: t.clientX, y: t.clientY, t: Date.now(), target: e.target };
+        }, { passive: true });
+        host.addEventListener('touchend', (e) => {
+          if (!t0 || e.changedTouches.length !== 1) { t0 = null; return; }
+          const t = e.changedTouches[0];
+          const moved = Math.hypot(t.clientX - t0.x, t.clientY - t0.y);
+          const dur   = Date.now() - t0.t;
+          const a = findAnchor(t0.target);
+          if (a && moved < 10 && dur < 350) {
+            const href = a.getAttribute('href') || a.getAttribute('xlink:href');
+            if (href) window.open(href, '_blank', 'noopener');
+          }
+          t0 = null;
+        }, { passive: true });
       })
       .catch(err => {
         document.getElementById('loading').textContent =
