@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lan Li: Academic Pedigree</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #f2f2f2;
+                 font-family: Baskerville, Georgia, serif;
+                 overscroll-behavior: none; }
+    #poster   { position: absolute; inset: 0; touch-action: none; }
+    #poster > svg { width: 100%; height: 100%; display: block; }
+    .topbar   { position: absolute; top: 10px; right: 12px; z-index: 10; }
+    .topbar a { display: inline-block; padding: 6px 12px;
+                border: 1px solid #bbb; border-radius: 4px;
+                background: rgba(255, 255, 255, 0.85);
+                color: #333; text-decoration: none;
+                font-size: 14px; font-style: italic; }
+    .topbar a:hover { color: #000; border-color: #888; }
+    #loading  { position: absolute; inset: 0; display: flex;
+                align-items: center; justify-content: center;
+                color: #888; font-style: italic; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div class="topbar"><a href="lan-primary-36x24.pdf">Download PDF (36×24)</a></div>
+  <div id="poster"><div id="loading">loading academic pedigree…</div></div>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <script>
+    fetch('lan-primary-bg-E.svg')
+      .then(r => r.text())
+      .then(text => {
+        const host = document.getElementById('poster');
+        host.innerHTML = text;
+        const svg = host.querySelector('svg');
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svgPanZoom(svg, {
+          fit: true,
+          center: true,
+          controlIconsEnabled: true,
+          minZoom: 0.3,
+          maxZoom: 25,
+          dblClickZoomEnabled: true,
+        });
+      })
+      .catch(err => {
+        document.getElementById('loading').textContent =
+          'failed to load poster: ' + err;
+      });
+  </script>
+</body>
+</html>
